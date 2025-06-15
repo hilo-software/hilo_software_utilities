@@ -1,0 +1,8 @@
+setup.py
+send_mail/__init__.py
+send_mail/send_mail.py
+test/test_send_mail.py
+utilities.egg-info/PKG-INFO
+utilities.egg-info/SOURCES.txt
+utilities.egg-info/dependency_links.txt
+utilities.egg-info/top_level.txt

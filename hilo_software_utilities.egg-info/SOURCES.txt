@@ -1,0 +1,5 @@
+setup.py
+hilo_software_utilities.egg-info/PKG-INFO
+hilo_software_utilities.egg-info/SOURCES.txt
+hilo_software_utilities.egg-info/dependency_links.txt
+hilo_software_utilities.egg-info/top_level.txt
