@@ -1,3 +1,4 @@
+import os
 import logging
 from logging.handlers import TimedRotatingFileHandler
 
@@ -7,30 +8,29 @@ DEFAULT_LOGGING_LEVEL = CUSTOM_LEVEL_NUM
 
 def setup_logging_handlers(log_file: str, rotate: bool, backup_count: int) -> list:
     try:
-        # Rotate logs every day (when='D') and keep the last 5 days (backupCount=5)
         if not rotate:
-            backup_count = 0
-        logging_file_handler = TimedRotatingFileHandler(log_file, when='D', interval=1, backupCount=backup_count)
-        if logging_file_handler.shouldRollover(None):
-            logging_file_handler.doRollover()
+            # Remove existing log file to start fresh
+            if os.path.exists(log_file):
+                os.remove(log_file)
+            
+            # Create a basic file handler in write mode
+            logging_file_handler = logging.FileHandler(log_file, mode='w')
+
+        else:
+            # Timed rotation (e.g., daily), keep specified backups
+            logging_file_handler = TimedRotatingFileHandler(
+                log_file, when='D', interval=1, backupCount=backup_count
+            )
+            # Do NOT force rollover — let it happen naturally based on time
+
     except (IOError, OSError, ValueError, FileNotFoundError) as e:
         print(f'ERROR -- Could not create logging file: {log_file}, e: {str(e)}')
-        logging_handlers = [
-            logging.StreamHandler()
-        ]
-        return logging_handlers
+        return [logging.StreamHandler()]
     except Exception as e:
         print(f'ERROR -- Unexpected Exception: Could not create logging file: {log_file}, e: {str(e)}')
-        logging_handlers = [
-            logging.StreamHandler()
-        ]
-        return logging_handlers
+        return [logging.StreamHandler()]
 
-    logging_handlers = [
-        logging_file_handler,
-        logging.StreamHandler()
-    ]
-    return logging_handlers
+    return [logging_file_handler, logging.StreamHandler()]
 
 # Define formats
 default_format = "%(asctime)s %(levelname)s: %(message)s"
