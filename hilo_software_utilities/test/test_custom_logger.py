@@ -8,15 +8,27 @@ from hilo_software_utilities.custom_logger import (
     CustomFormatter, CUSTOM_LEVEL_NUM, CUSTOM_LEVEL_NAME
 )
 
-def test_setup_logging_handlers_success():
+def test_setup_logging_handlers_rotate_success():
     with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
-        handlers = setup_logging_handlers(tmpfile.name)
+        handlers = setup_logging_handlers(tmpfile.name, True, 1)
         assert any(isinstance(h, logging.StreamHandler) for h in handlers)
         assert any(isinstance(h, logging.handlers.TimedRotatingFileHandler) for h in handlers)
 
-def test_setup_logging_handlers_failure(monkeypatch):
+def test_setup_logging_handlers_no_rotate_success():
+    with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
+        handlers = setup_logging_handlers(tmpfile.name, False, 1)
+        assert any(isinstance(h, logging.StreamHandler) for h in handlers)
+        assert not any(isinstance(h, logging.handlers.TimedRotatingFileHandler) for h in handlers)
+
+def test_setup_logging_handlers_0_backup_success():
+    with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
+        handlers = setup_logging_handlers(tmpfile.name, False, 0)
+        assert any(isinstance(h, logging.StreamHandler) for h in handlers)
+        assert not any(isinstance(h, logging.handlers.TimedRotatingFileHandler) for h in handlers)
+
+def test_setup_logging_handlers_rotate_failure(monkeypatch):
     monkeypatch.setattr("logging.handlers.TimedRotatingFileHandler", mock.MagicMock(side_effect=OSError("fail")))
-    handlers = setup_logging_handlers("/invalid/path/to/logfile.log")
+    handlers = setup_logging_handlers("/invalid/path/to/logfile.log", True, 1)
     assert len(handlers) == 1
     assert isinstance(handlers[0], logging.StreamHandler)
 
